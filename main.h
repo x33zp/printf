@@ -15,5 +15,8 @@
  */
 
 int _printf(const char *format, ...);
+int _pchar(char a);
+int _myput(char *str);
+int print_number(int n);
 
 #endif

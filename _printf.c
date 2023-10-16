@@ -3,61 +3,50 @@
 /**
  * _printf - A function that prints formated string.
  * @format: is the format specifier.
+ * @...: Variable number of arguments
  * Return: an integer.
  */
 
 int _printf(const char *format, ...)
 {
-	int char_print = 0;
-	va_list args;
+
+	va_list list_of_args;
+	int i, j, count = 0;
+	char cha;
 
 	if (format == NULL)
-		return(-1);
+		return (-1);
+	va_start(list_of_args, format);
 
-	va_start(args, format);
-
-	while (*format)
+	for (i = 0; format[i]; i++)
 	{
-		if (*format != '%')
+		if (format[i] != '%')
+			count += _pchar(format[i]);
+		else if (format[i] == '%' && format[i + 1] != '%')
 		{
-			write(1, format, 1);
-			char_print++;
+			i++;
+			cha = format[i];
+
+			if (cha == 'c')
+				count += _pchar(va_arg(list_of_args, int));
+			else if (cha == 's')
+			{
+				char *str = va_arg(list_of_args, char *);
+
+				if (str == NULL)
+					str = "(null)";
+				for (j = 0; str[j] != '\0'; j++)
+					count += _pchar(str[j]);
+			}
+			else if (cha == 'd' || cha == 'i')
+				count += print_number(va_arg(list_of_args, int));
 		}
-		else
+		else if (format[i] == '%' && format[i + 1] == '%')
 		{
-			format++; 
-			if (*format == '\0')
-				break;
-
-			if (*format == '%')
-			{
-				write(1, format, 1);
-				char_print++;
-
-			}
-			else if (*format == 'C')
-			{
-				char c = va_arg(args, int);
-				write(1, &c, 1);
-				char_print++;
-			}
-			else if (*format == 'S')
-			{
-				char *str = va_arg(args, char*);
-				int str_len = 0;
-
-				while (str[str_len] != '\0')
-					str_len++;
-
-				write (1, str, str_len);
-				char_print += str_len;
-			}
-                }
-
-		format++;
+			count += _pchar('%');
+			i++;
+		}
 	}
-
-	va_end(args);
-
-	return char_print;
+	va_end(list_of_args);
+	return (count);
 }
